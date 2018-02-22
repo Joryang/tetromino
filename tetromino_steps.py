@@ -178,19 +178,35 @@ def runGame():
 
 
     # 测试getNewPiece
-
+    '''
     piece = getNewPiece()
     piece['x'] = 3
     piece['y'] = 3
+    '''
 
+    fallingPiece = getNewPiece()
+    lastFallTime = time.time()
+    fallFreq = 0.5 # 自由降落频率为0.5秒一次
 
     while True:
         checkForQuit()
 
+        if fallingPiece == None:
+            fallingPiece = getNewPiece()
+            lastFallTime = time.time()
+
+        if time.time() - lastFallTime > fallFreq:
+            if isValidPosition(board, fallingPiece, adjY=1):
+                fallingPiece['y'] += 1
+                lastFallTime = time.time()
+            else:
+                addToBoard(board, fallingPiece)
+                fallingPiece = None
 
         DISPLAYSURF.fill(BGCOLOR)
         drawBoard(board)
-        drawPiece(piece)
+        if fallingPiece != None:
+            drawPiece(fallingPiece)
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
@@ -259,7 +275,27 @@ def drawPiece(piece, pixelx=None, pixely=None):
                 drawBox(None, None, piece['color'], pixelx + (x * BOXSIZE), \
                         pixely + (y * BOXSIZE))
 
+def isValidPosition(board, piece, adjX=0, adjY=0):
+    # return True if the piece is within the board and not colliding
+    for x in range(TEMPLATEWIDTH):
+        for y in range(TEMPLATEHEIGHT):
+            isAboveBoard = y + piece['y'] + adjY < 0
+            if isAboveBoard or SHAPES[piece['shape']][piece['rotation']][y][x] == BLANK:
+                continue
+            if not isOnBoard(x + piece['x'] + adjX, y + piece['y'] + adjY):
+                return False
+            if board[x + piece['x'] + adjX][y + piece['y'] + adjY] != BLANK:
+                return False
+    return True
 
+def isOnBoard(x, y):
+    return x >= 0 and x < BOARDWIDTH and y < BOARDHEIGHT
+
+def addToBoard(board, piece):
+    for x in range(TEMPLATEWIDTH):
+        for y in range(TEMPLATEHEIGHT):
+            if SHAPES[piece['shape']][piece['rotation']][y][x] != BLANK:
+                board[x + piece['x']][y + piece['y']] = piece['color']
 
 if __name__ == '__main__':
     main()
