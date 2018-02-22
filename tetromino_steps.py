@@ -37,11 +37,18 @@ LIGHTCOLORS = (LIGHTBLUE, LIGHTGREEN, LIGHTRED, LIGHTYELLOW)
 assert len(COLORS) == len(LIGHTCOLORS)
 
 
+BLANK = '.'  # board中的空白元素
+
+
 def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT
+
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
+
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
+
+    # 游戏中用到的字体
     BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
     BIGFONT = pygame.font.Font('freesansbold.ttf', 100)
     pygame.display.set_caption('Tetromino')
@@ -52,11 +59,14 @@ def main():
 
 def runGame():
 
+    board = getBlankBoard()
+    board[3][3] = 3
+
     while True:
         checkForQuit()
 
         DISPLAYSURF.fill(BGCOLOR)
-
+        drawBoard(board)
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
@@ -71,6 +81,38 @@ def checkForQuit():
 def terminate():
     pygame.quit()
     sys.exit()
+
+def getBlankBoard():
+    board = []
+    for i in range(BOARDWIDTH):
+        board.append([BLANK] * BOARDHEIGHT)
+    return board
+
+def convertToPixelCoords(boxx, boxy):
+    return (XMARGIN + (boxx * BOXSIZE)), (TOPMARGIN + (boxy * BOXSIZE))
+
+def drawBox(boxx, boxy,color, pixelx=None, pixely=None):
+    # draw a single box at xy coordiates on the board. Or if pixelxy are
+    # specified, draw to the pixel coordinates( used for the next piece)
+    if color == BLANK:
+        return
+    if pixelx == None and pixely == None:
+        pixelx, pixely = convertToPixelCoords(boxx, boxy)
+    pygame.draw.rect(DISPLAYSURF, COLORS[color], (pixelx + 1, pixely + 1, BOXSIZE - 1, \
+                                                  BOXSIZE - 1))
+    pygame.draw.rect(DISPLAYSURF, LIGHTCOLORS[color],(pixelx + 1, pixely + 1, BOXSIZE - 4, \
+                                                  BOXSIZE - 4))
+
+def drawBoard(board):
+    # draw the border around the board
+    pygame.draw.rect(DISPLAYSURF, BORDERCOLOR, (XMARGIN - 3, TOPMARGIN - 7, \
+                     (BOARDWIDTH * BOXSIZE) + 8, (BOARDHEIGHT * BOXSIZE) + 8), 5)
+
+    pygame.draw.rect(DISPLAYSURF, BGCOLOR, (XMARGIN, TOPMARGIN, BOXSIZE * BOARDWIDTH, \
+                                            BOXSIZE * BOARDHEIGHT))
+    for x in range(BOARDWIDTH):
+        for y in range(BOARDHEIGHT):
+            drawBox(x, y, board[x][y])
 
 if __name__ == '__main__':
     main()
