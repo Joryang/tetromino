@@ -175,16 +175,22 @@ def runGame():
     board = getBlankBoard()
 
     # board[3][3] = 1 # 测试drawboard
-    piece1 = getNewPiece()
-    piece1['x'] = 3
-    piece1['y'] = 3
-    addToBoard(board, piece1)
+
+
+    # 测试getNewPiece
+
+    piece = getNewPiece()
+    piece['x'] = 3
+    piece['y'] = 3
+
 
     while True:
         checkForQuit()
 
+
         DISPLAYSURF.fill(BGCOLOR)
         drawBoard(board)
+        drawPiece(piece)
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
@@ -241,11 +247,19 @@ def getNewPiece():
                 'color': random.randint(0, len(COLORS) -1)}
     return newPiece
 
-def addToBoard(board, piece):
+def drawPiece(piece, pixelx=None, pixely=None):
+    shapeToDraw = SHAPES[piece['shape']][piece['rotation']]
+
+    if pixelx == None and pixely == None:
+        pixelx, pixely = convertToPixelCoords(piece['x'], piece['y'])
+
     for x in range(TEMPLATEWIDTH):
         for y in range(TEMPLATEHEIGHT):
-            if SHAPES[piece['shape']][piece['rotation']][y][x] != BLANK:
-                board[x + piece['x']][y + piece['y']] = piece['color']
+            if shapeToDraw[y][x] != BLANK:
+                drawBox(None, None, piece['color'], pixelx + (x * BOXSIZE), \
+                        pixely + (y * BOXSIZE))
+
+
 
 if __name__ == '__main__':
     main()
