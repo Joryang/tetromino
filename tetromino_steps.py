@@ -39,6 +39,119 @@ assert len(COLORS) == len(LIGHTCOLORS)
 
 BLANK = '.'  # board中的空白元素
 
+TEMPLATEWIDTH = 5
+TEMPLATEHEIGHT = 5
+
+S_SHAPE_TEMPLATE = [['.....',
+                     '.....',
+                     '..oo.',
+                     '.oo..',
+                     '.....'],
+                    ['.....',
+                     '..o..',
+                     '..oo.',
+                     '...o.',
+                     '.....']]
+
+Z_SHAPE_TEMPLATE = [['.....',
+                     '.....',
+                     '.oo..',
+                     '..oo.',
+                     '.....'],
+                    ['.....',
+                     '..o..',
+                     '.oo..',
+                     '.o...',
+                     '.....']]
+
+I_SHAPE_TEMPLATE = [['..o..',
+                     '..o..',
+                     '..o..',
+                     '..o..',
+                     '.....'],
+                    ['.....',
+                     '.....',
+                     'oooo.',
+                     '.....',
+                     '.....']]
+
+O_SHAPE_TEMPLATE = [['.....',
+                     '.....',
+                     '.oo..',
+                     '.oo..',
+                     '.....']]
+
+J_SHAPE_TEMPLATE = [['.....',
+                     '.o...',
+                     '.ooo.',
+                     '.....',
+                     '.....'],
+                    ['.....',
+                     '..oo.',
+                     '..o..',
+                     '..o..',
+                     '.....'],
+                    ['.....',
+                     '.....',
+                     '.ooo.',
+                     '...o.',
+                     '.....'],
+                    ['.....',
+                     '..o..',
+                     '..o..',
+                     '.oo..',
+                     '.....']]
+
+L_SHAPE_TEMPLATE = [['.....',
+                     '...o.',
+                     '.ooo.',
+                     '.....',
+                     '.....'],
+                    ['.....',
+                     '..o..',
+                     '..o..',
+                     '..oo.',
+                     '.....'],
+                    ['.....',
+                     '.....',
+                     '.ooo.',
+                     '.o...',
+                     '.....'],
+                    ['.....',
+                     '.oo..',
+                     '..o..',
+                     '..o..',
+                     '.....']]
+
+T_SHAPE_TEMPLATE = [['.....',
+                     '..o..',
+                     '.ooo.',
+                     '.....',
+                     '.....'],
+                    ['.....',
+                     '..o..',
+                     '..oo.',
+                     '..o..',
+                     '.....'],
+                    ['.....',
+                     '.....',
+                     '.ooo.',
+                     '..o..',
+                     '.....'],
+                    ['.....',
+                     '..o..',
+                     '.oo..',
+                     '..o..',
+                     '.....']]
+
+SHAPES = {'S': S_SHAPE_TEMPLATE,
+          'Z': Z_SHAPE_TEMPLATE,
+          'J': J_SHAPE_TEMPLATE,
+          'L': L_SHAPE_TEMPLATE,
+          'I': I_SHAPE_TEMPLATE,
+          'O': O_SHAPE_TEMPLATE,
+          'T': T_SHAPE_TEMPLATE}
+
 
 def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT
@@ -60,7 +173,12 @@ def main():
 def runGame():
 
     board = getBlankBoard()
-    board[3][3] = 3
+
+    # board[3][3] = 1 # 测试drawboard
+    piece1 = getNewPiece()
+    piece1['x'] = 3
+    piece1['y'] = 3
+    addToBoard(board, piece1)
 
     while True:
         checkForQuit()
@@ -113,6 +231,21 @@ def drawBoard(board):
     for x in range(BOARDWIDTH):
         for y in range(BOARDHEIGHT):
             drawBox(x, y, board[x][y])
+
+def getNewPiece():
+    shape = random.choice(list(SHAPES.keys()))
+    newPiece = {'shape': shape,
+                'rotation': random.randint(0, len(SHAPES[shape]) - 1),
+                'x': int(BOARDWIDTH / 2) - int(TEMPLATEWIDTH / 2),
+                'y': -2,
+                'color': random.randint(0, len(COLORS) -1)}
+    return newPiece
+
+def addToBoard(board, piece):
+    for x in range(TEMPLATEWIDTH):
+        for y in range(TEMPLATEHEIGHT):
+            if SHAPES[piece['shape']][piece['rotation']][y][x] != BLANK:
+                board[x + piece['x']][y + piece['y']] = piece['color']
 
 if __name__ == '__main__':
     main()
